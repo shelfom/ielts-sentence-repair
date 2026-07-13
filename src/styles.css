@@ -100,7 +100,6 @@ button,
 }
 
 .eyebrow,
-.mode-note,
 .enter-hint,
 .alternative {
   margin: 0;
@@ -154,6 +153,41 @@ button,
   color: color-mix(in srgb, var(--ice) 44%, transparent);
 }
 
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border: 0;
+  color: var(--ice);
+  background: transparent;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.back-button span {
+  font-size: 14px;
+  line-height: 1;
+}
+
+.back-button:hover:not(:disabled),
+.back-button:focus-visible {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.back-button:focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 6px;
+}
+
+.back-button:disabled {
+  color: color-mix(in srgb, var(--ice) 24%, transparent);
+  cursor: default;
+}
+
 .enter-hint {
   display: flex;
   align-items: center;
@@ -196,6 +230,16 @@ kbd {
   color: color-mix(in srgb, var(--ice) 58%, transparent);
   font-size: 15px;
   line-height: 1.6;
+}
+
+.completion-actions {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.completion-back {
+  padding: 12px 0;
 }
 
 .restart {
@@ -260,10 +304,6 @@ kbd {
   .sentence-editor,
   .answer {
     font-size: clamp(24px, 7.5vw, 34px);
-  }
-
-  .mode-note {
-    display: none;
   }
 
   .enter-hint {

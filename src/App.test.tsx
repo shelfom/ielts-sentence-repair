@@ -32,6 +32,47 @@ describe('sentence practice flow', () => {
     expect(screen.getAllByText('The table shows the number of people working in Britain in 1976.')).toHaveLength(2)
   })
 
+  it('moves back through revealed sentences and keeps earlier edits', () => {
+    render(<App />)
+
+    let editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    editor.textContent = 'My corrected first sentence.'
+    fireEvent.keyDown(editor, { key: 'Enter' })
+    fireEvent.keyDown(editor, { key: 'Enter' })
+
+    editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    fireEvent.keyDown(editor, { key: 'Enter' })
+    fireEvent.keyDown(editor, { key: 'Enter' })
+    expect(screen.getByText('003 / 195')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to previous sentence' }))
+    expect(screen.getByText('002 / 195')).toBeTruthy()
+    expect(screen.getByText('The news was very upsetting.')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Back to previous sentence' }))
+    expect(screen.getByText('001 / 195')).toBeTruthy()
+    expect(screen.getByText('My corrected first sentence.')).toBeTruthy()
+    expect((screen.getByRole('button', { name: 'Back to previous sentence' }) as HTMLButtonElement).disabled).toBe(true)
+  })
+
+  it('keeps an unfinished edit when navigating back and returning', () => {
+    render(<App />)
+
+    let editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    fireEvent.keyDown(editor, { key: 'Enter' })
+    fireEvent.keyDown(editor, { key: 'Enter' })
+
+    editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    editor.textContent = 'An unfinished second edit.'
+    fireEvent.click(screen.getByRole('button', { name: 'Back to previous sentence' }))
+
+    editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    fireEvent.keyDown(editor, { key: 'Enter' })
+    editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    expect(editor.textContent).toBe('An unfinished second edit.')
+    expect(editor.getAttribute('contenteditable')).toBe('true')
+  })
+
   it('reaches the completion screen after the final answer and can restart', () => {
     render(<App />)
 
@@ -41,6 +82,10 @@ describe('sentence practice flow', () => {
       fireEvent.keyDown(editor, { key: 'Enter' })
     }
 
+    expect(screen.getByText('SESSION COMPLETE')).toBeTruthy()
+    fireEvent.click(screen.getByRole('button', { name: /back/i }))
+    expect(screen.getByText('195 / 195')).toBeTruthy()
+    fireEvent.keyDown(screen.getByRole('textbox', { name: 'Sentence to correct' }), { key: 'Enter' })
     expect(screen.getByText('SESSION COMPLETE')).toBeTruthy()
     fireEvent.click(screen.getByRole('button', { name: /restart/i }))
     expect(screen.getByText('001 / 195')).toBeTruthy()
