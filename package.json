@@ -1,6 +1,8 @@
 {
   "name": "ielts-sentence-repair",
+  "private": true,
   "version": "1.0.0",
+  "type": "module",
   "description": "IELTS Sentence Repair - A strict two-color keyboard-first IELTS sentence correction practice app",
   "scripts": {
     "build": "bash ./scripts/build.sh",
@@ -9,35 +11,36 @@
     "lint": "eslint",
     "lint:build": "eslint . --quiet",
     "start": "bash ./scripts/start.sh",
-    "ts-check": "tsc -p tsconfig.json",
+    "ts-check": "tsc -b",
+    "test": "vitest run",
+    "test:data": "tsx scripts/validate-data.ts",
     "validate": "pnpm run --parallel '/^(ts-check|lint:build)$/'"
   },
   "dependencies": {
-    "@supabase/supabase-js": "2.95.3",
     "dotenv": "^17.2.3",
     "express": "^4.21.2",
-    "react": "^19.2.7",
-    "react-dom": "^19.2.7"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.2",
     "@types/express": "^5.0.0",
     "@types/node": "^22.10.5",
-    "@types/react": "^19.2.17",
-    "@types/react-dom": "^19.2.3",
-    "@vitejs/plugin-react": "^6.0.3",
-    "autoprefixer": "^10.4.20",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.5.2",
     "coze-coding-dev-sdk": "^0.7.24",
     "esbuild": "^0.24.2",
     "eslint": "^9",
     "eslint-plugin-import": "^2.32.0",
+    "jsdom": "^29.1.1",
     "only-allow": "^1.2.2",
-    "postcss": "^8.4.49",
-    "tailwindcss": "^3.4.17",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
     "typescript": "^5.6.0",
     "typescript-eslint": "^8",
-    "vite": "^7.2.4"
+    "vite": "^7.2.4",
+    "vitest": "^4.1.10"
   },
   "packageManager": "pnpm@9.0.0",
   "engines": {
