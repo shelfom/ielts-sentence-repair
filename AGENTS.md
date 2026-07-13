@@ -2,7 +2,7 @@
 
 ## 技术栈
 
-- **核心**: Vite 7, TypeScript, Express
+- **核心**: React 19, TypeScript, Vite 7, Express
 - **UI**: Tailwind CSS
 
 ## 目录结构
@@ -17,14 +17,14 @@
 │   ├── routes/         # API 路由
 │   ├── server.ts       # Express 服务入口
 │   └── vite.ts         # Vite 中间件集成
-├── src/                # 前端源码
-│   ├── index.css       # 全局样式
-│   ├── index.ts        # 客户端入口
-│   └── main.ts         # 主逻辑
+├── src/                # 前端源码 (React)
+│   ├── App.tsx         # 根组件
+│   ├── main.tsx        # React 入口
+│   └── index.css       # 全局样式
 ├── index.html          # 入口 HTML
 ├── package.json        # 项目依赖管理
 ├── tsconfig.json       # TypeScript 配置
-└── vite.config.ts      # Vite 配置
+└── vite.config.ts      # Vite 配置 (with @vitejs/plugin-react)
 ```
 
 ## 包管理规范
@@ -39,8 +39,11 @@
 ## 开发规范
 
 - 使用 Tailwind CSS 进行样式开发
+- React 组件使用函数式组件 + Hooks
+- 组件文件使用 `.tsx` 扩展名
 
 ### 编码规范
 
 - 默认按 TypeScript `strict` 心智写代码；优先复用当前作用域已声明的变量、函数、类型和导入，禁止引用未声明标识符或拼错变量名。
-- 禁止隐式 `any` 和 `as any`；函数参数、返回值、解构项、事件对象、Express `req`/`res`、`catch` 错误在使用前应有明确类型或先完成类型收窄，并清理未使用的变量和导入。
+- 禁止隐式 `any` 和 `as any`；函数参数、返回值、解构项、事件处理器、Express `req`/`res`、`catch` 错误在使用前应有明确类型或先完成类型收窄，并清理未使用的变量和导入。
+- React 17+ 不需要 `import React from 'react'`，除非代码中显式使用了 `React.xxx`
