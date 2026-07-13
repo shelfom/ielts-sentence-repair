@@ -66,9 +66,9 @@ function App() {
       <main className="app complete-screen">
         <div className="frame frame-complete" aria-labelledby="completion-title">
           <p className="eyebrow">SESSION COMPLETE</p>
-          <h1 id="completion-title">195 sentences.<br />One sharper eye.</h1>
+          <h1 id="completion-title">195 sentences completed.</h1>
           <p className="completion-copy">
-            You reached the final correction. Start again and notice what you missed the first time.
+            Start again when you are ready.
           </p>
           <button ref={restartRef} className="restart" onClick={restart}>
             RESTART <span aria-hidden="true">↵</span>
@@ -83,7 +83,7 @@ function App() {
     <main className={`app phase-${phase}`}>
       <header className="topbar">
         <a className="wordmark" href="/" onClick={(event) => event.preventDefault()} aria-label="Sentence Repair home">
-          SENTENCE<br />REPAIR
+          SENTENCE REPAIR
         </a>
         <div className="progress" aria-label={`Exercise ${exercise.id} of ${exercises.length}, group ${exercise.group}`}>
           <span>GROUP {String(exercise.group).padStart(2, '0')}</span>
@@ -92,7 +92,7 @@ function App() {
       </header>
 
       <section className="practice" aria-labelledby="practice-label">
-        <div className="prompt-block">
+        <div className="sentence-panel prompt-block">
           <p id="practice-label" className="eyebrow">
             {phase === 'editing' ? 'EDIT THE SENTENCE' : 'YOUR EDIT'}
           </p>
@@ -108,16 +108,14 @@ function App() {
             aria-multiline="false"
             spellCheck={false}
             onKeyDown={handleKeyDown}
-            onInput={(event) => setAttempt(event.currentTarget.innerText)}
           >
             {attempt}
           </div>
         </div>
 
-        <div className={`answer-block ${phase === 'revealed' ? 'is-visible' : ''}`} aria-live="polite" aria-hidden={phase !== 'revealed'}>
-          <div className="answer-rule" />
+        <div className={`sentence-panel answer-block ${phase === 'revealed' ? 'is-visible' : ''}`} aria-live="polite" aria-hidden={phase !== 'revealed'}>
           <p className="eyebrow answer-label">
-            {exercise.correctAsWritten ? 'CORRECT AS WRITTEN' : 'REFERENCE'}
+            {exercise.correctAsWritten ? 'CORRECT AS WRITTEN' : 'CORRECTION'}
           </p>
           <p className="answer">{exercise.corrected}</p>
           {exercise.alternatives?.map((alternative) => (
@@ -127,7 +125,7 @@ function App() {
       </section>
 
       <footer className="footer">
-        <p className="mode-note">IELTS / SENTENCE CORRECTION</p>
+        <p className="mode-note">IELTS SENTENCE CORRECTION</p>
         <p className="enter-hint">
           {phase === 'editing' ? 'REVEAL ANSWER' : exercise.id === exercises.length ? 'FINISH SESSION' : 'NEXT SENTENCE'}
           <kbd>ENTER ↵</kbd>

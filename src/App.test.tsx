@@ -20,6 +20,18 @@ describe('sentence practice flow', () => {
     expect(screen.getByText('002 / 195')).toBeTruthy()
   })
 
+  it('keeps the editable sentence native while typing and reads it only on reveal', () => {
+    render(<App />)
+
+    const editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    editor.textContent = 'The table shows the number of people working in Britain in 1976.'
+    fireEvent.input(editor)
+    expect(editor.textContent).toBe('The table shows the number of people working in Britain in 1976.')
+
+    fireEvent.keyDown(editor, { key: 'Enter' })
+    expect(screen.getAllByText('The table shows the number of people working in Britain in 1976.')).toHaveLength(2)
+  })
+
   it('reaches the completion screen after the final answer and can restart', () => {
     render(<App />)
 
