@@ -1,72 +1,67 @@
-// ABOUTME: Vite integration for development and production builds
-// ABOUTME: Handles HMR in dev mode and serves static files in production
+// ABOUTME: Vite integration for Express server
+// ABOUTME: Handles dev middleware and production static file serving
 
+import type { Application, Request, Response } from 'express';
+import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import express from 'express';
-import type { ViteDevServer } from 'vite';
+import { createServer as createViteServer } from 'vite';
+import viteConfig from '../vite.config';
 
-let viteServer: ViteDevServer | undefined;
+const isDev = process.env.COZE_PROJECT_ENV !== 'PROD';
 
-export async function setupVite(app: express.Application): Promise<void> {
-  const isDev = process.env.COZE_PROJECT_ENV !== 'PROD';
+/**
+ * 集成 Vite 开发服务器（中间件模式）
+ */
+export async function setupViteMiddleware(app: Application) {
+  const vite = await createViteServer({
+    ...viteConfig,
+    server: {
+      ...viteConfig.server,
+      middlewareMode: true,
+    },
+    appType: 'spa',
+  });
 
-  if (isDev) {
-    // 开发模式：使用 Vite 中间件
-    const { createServer: createViteServer } = await import('vite');
-    viteServer = await createViteServer({
-      server: {
-        middlewareMode: true,
-        hmr: {
-          port: 6000,
-          path: '/hot/vite-hmr',
-        },
-      },
-      appType: 'spa',
-    });
-    app.use(viteServer.middlewares);
-  } else {
-    // 生产模式：直接设置静态文件服务
-    setupStaticServer(app);
-  }
+  // 使用 Vite middleware
+  app.use(vite.middlewares);
+
+  console.log('🚀 Vite dev server initialized');
 }
 
-function setupStaticServer(app: express.Application): void {
-  // 尝试多个可能的 dist 路径
-  const possiblePaths = [
-    path.resolve(__dirname, '..', 'dist'),
-    path.resolve(process.cwd(), 'dist'),
-    path.resolve(__dirname, 'dist'),
-  ];
+/**
+ * 设置生产环境静态文件服务
+ */
+export function setupStaticServer(app: Application) {
+  const distPath = path.resolve(process.cwd(), 'dist');
 
-  let distPath: string | null = null;
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      distPath = p;
-      break;
-    }
+  if (!fs.existsSync(distPath)) {
+    console.error('❌ dist folder not found. Please run "pnpm build" first.');
+    process.exit(1);
   }
 
-  if (distPath) {
-    console.log(`📦 Serving static files from: ${distPath}`);
-    app.use(express.static(distPath));
-    // SPA fallback - 所有未匹配的路由都返回 index.html
-    app.get('*', (req, res, next) => {
-      // 跳过 API 路由
-      if (req.path.startsWith('/api/')) {
-        return next();
-      }
-      res.sendFile(path.join(distPath!, 'index.html'));
-    });
+  // 1. 服务静态文件（如果存在对应文件则直接返回）
+  app.use(express.static(distPath));
+
+  // 2. SPA fallback - 所有未处理的请求返回 index.html
+  // 到达这里的请求说明：
+  //   - 不是 API 请求（已被前面注册的路由处理）
+  //   - 不是静态文件（express.static 未找到对应文件）
+  //   - 需要返回 index.html 让前端路由处理
+  app.use((_req: Request, res: Response) => {
+    res.sendFile(path.join(distPath, 'index.html'));
+  });
+
+  console.log('📦 Serving static files from dist/');
+}
+
+/**
+ * 根据环境设置 Vite
+ */
+export async function setupVite(app: Application) {
+  if (isDev) {
+    await setupViteMiddleware(app);
   } else {
-    console.log('⚠️ No dist folder found - static files not served');
-    console.log(`  Tried: ${possiblePaths.join(', ')}`);
-    // 即使没有 dist 文件夹，也设置一个基本的 SPA fallback
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api/')) {
-        return next();
-      }
-      res.status(404).send('Build not found. Please run build first.');
-    });
+    setupStaticServer(app);
   }
 }
