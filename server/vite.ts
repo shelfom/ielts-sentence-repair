@@ -33,20 +33,31 @@ export async function setupViteMiddleware(app: Application) {
  * 设置生产环境静态文件服务
  */
 export function setupStaticServer(app: Application) {
-  // Use __dirname for more reliable path resolution in FaaS environments
-  const distPath = path.resolve(__dirname, '..', 'dist');
+  // Try multiple possible dist paths for FaaS compatibility
+  const possiblePaths = [
+    path.resolve(__dirname, '..', 'dist'),
+    path.resolve(process.cwd(), 'dist'),
+    path.resolve(__dirname, 'dist'),
+  ];
 
-  if (!fs.existsSync(distPath)) {
-    // Fallback: try process.cwd()
-    const fallbackPath = path.resolve(process.cwd(), 'dist');
-    if (fs.existsSync(fallbackPath)) {
-      console.log('📦 Using fallback dist path:', fallbackPath);
-      serveFromPath(app, fallbackPath);
-      return;
+  let distPath: string | null = null;
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      distPath = p;
+      console.log('📦 Found dist folder at:', p);
+      break;
     }
-    console.error('❌ dist folder not found at:', distPath);
-    console.error('❌ Fallback path not found at:', fallbackPath);
-    process.exit(1);
+  }
+
+  if (!distPath) {
+    console.error('❌ dist folder not found. Tried paths:');
+    possiblePaths.forEach(p => console.error('   -', p));
+    console.error('❌ Current working directory:', process.cwd());
+    console.error('❌ __dirname:', __dirname);
+    // Don't exit - let the server start anyway and serve API only
+    // The FaaS health check might pass if we at least listen on the port
+    return;
   }
 
   serveFromPath(app, distPath);

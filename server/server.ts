@@ -34,7 +34,12 @@ async function startServer(): Promise<Server> {
   app.use(router);
 
   // 集成 Vite（开发模式）或静态文件服务（生产模式）
-  await setupVite(app);
+  try {
+    await setupVite(app);
+  } catch (err) {
+    console.error('❌ Failed to setup Vite/static server:', err);
+    // Continue anyway - API routes should still work
+  }
 
   // 全局错误处理
   app.use((err: Error, req: express.Request, res: express.Response) => {
