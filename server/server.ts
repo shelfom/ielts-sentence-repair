@@ -8,7 +8,7 @@ import { setupVite } from './vite';
 
 const isDev = process.env.COZE_PROJECT_ENV !== 'PROD';
 const port = parseInt(process.env.PORT || '5000', 10);
-const hostname = process.env.HOSTNAME || 'localhost';
+const hostname = '0.0.0.0';
 const app = express();
 // 使用 http.createServer 包装 Express app，以便支持 WebSocket 等协议升级
 const server = createServer(app);
