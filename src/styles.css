@@ -123,6 +123,7 @@ button,
   margin: auto;
   padding: clamp(48px, 10vh, 100px) 0;
   gap: clamp(16px, 2vh, 24px);
+  transform: translateY(-1cm);
 }
 
 .sentence-panel {
