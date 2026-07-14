@@ -1,7 +1,7 @@
 // ABOUTME: Vite integration for Express server
 // ABOUTME: Handles dev middleware and production static file serving
 
-import type { Application, Request, Response, NextFunction } from 'express';
+import type { Application, Request, Response } from 'express';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';

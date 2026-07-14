@@ -1,7 +1,7 @@
 // ABOUTME: Express server with Vite integration
 // ABOUTME: Handles API routes and serves frontend in dev/prod modes
 
-import { createServer, type Server } from 'http';
+import { createServer } from 'http';
 import express from 'express';
 import router from './routes/index';
 import { setupVite } from './vite';
@@ -37,9 +37,19 @@ app.get('/api/health', (_req, res) => {
 });
 
 // Listen FIRST so FaaS health checks pass immediately
+console.log(`[server] Attempting to listen on ${hostname}:${port}...`);
 server.listen(port, hostname, () => {
   console.log(`\n✨ Server running at http://${hostname}:${port}`);
   console.log(`📝 Environment: ${isDev ? 'development' : 'production'}\n`);
+});
+
+server.on('listening', () => {
+  console.log(`[server] Successfully listening on ${hostname}:${port}`);
+});
+
+server.on('error', (err) => {
+  console.error('[server] Failed to start:', err);
+  process.exit(1);
 });
 
 // Set up Vite/static files AFTER listening (non-blocking)
@@ -64,6 +74,7 @@ setupVite(app)
   });
 
 // Error handler - MUST have 4 parameters to be recognized by Express
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Server error:', err);
   const status = 'status' in err ? (err as { status?: number }).status ?? 500 : 500;
@@ -72,7 +83,4 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   });
 });
 
-server.on('error', (err) => {
-  console.error('Server error:', err);
-  process.exit(1);
-});
+
