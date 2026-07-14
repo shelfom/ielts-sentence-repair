@@ -11,7 +11,7 @@ import viteConfig from '../vite.config';
 const isDev = process.env.COZE_PROJECT_ENV !== 'PROD';
 
 /**
- * 集成 Vite 开发服务器（中间件模式）
+ * Set up Vite dev middleware
  */
 export async function setupViteMiddleware(app: Application) {
   const vite = await createViteServer({
@@ -23,40 +23,48 @@ export async function setupViteMiddleware(app: Application) {
     appType: 'spa',
   });
 
-  // 使用 Vite middleware
   app.use(vite.middlewares);
-
   console.log('🚀 Vite dev server initialized');
 }
 
 /**
- * 设置生产环境静态文件服务
+ * Set up production static file server
  */
 export function setupStaticServer(app: Application) {
-  const distPath = path.resolve(process.cwd(), 'dist');
+  // Try multiple possible dist paths for FaaS compatibility
+  const possiblePaths = [
+    path.resolve(process.cwd(), 'dist'),
+    path.resolve(__dirname, '..', 'dist'),
+    path.resolve(__dirname, 'dist'),
+  ];
 
-  if (!fs.existsSync(distPath)) {
-    console.error('❌ dist folder not found. Please run "pnpm build" first.');
-    process.exit(1);
+  let distPath: string | null = null;
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      distPath = p;
+      break;
+    }
   }
 
-  // 1. 服务静态文件（如果存在对应文件则直接返回）
+  if (!distPath) {
+    console.warn('⚠️ dist folder not found at any of:', possiblePaths);
+    console.warn('⚠️ Static files will not be served, but API endpoints will work');
+    return;
+  }
+
+  console.log(`📦 Serving static files from ${distPath}`);
+
+  // Serve static files
   app.use(express.static(distPath));
 
-  // 2. SPA fallback - 所有未处理的请求返回 index.html
-  // 到达这里的请求说明：
-  //   - 不是 API 请求（已被前面注册的路由处理）
-  //   - 不是静态文件（express.static 未找到对应文件）
-  //   - 需要返回 index.html 让前端路由处理
+  // SPA fallback - return index.html for all non-API requests
   app.use((_req: Request, res: Response) => {
-    res.sendFile(path.join(distPath, 'index.html'));
+    res.sendFile(path.join(distPath!, 'index.html'));
   });
-
-  console.log('📦 Serving static files from dist/');
 }
 
 /**
- * 根据环境设置 Vite
+ * Set up Vite based on environment
  */
 export async function setupVite(app: Application) {
   if (isDev) {
