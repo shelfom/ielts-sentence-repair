@@ -122,7 +122,7 @@ button,
   max-width: 960px;
   margin: auto;
   padding: clamp(48px, 10vh, 100px) 0;
-  gap: clamp(40px, 6vh, 72px);
+  gap: clamp(16px, 2vh, 24px);
 }
 
 .sentence-panel {
@@ -151,6 +151,10 @@ button,
 
 .eyebrow {
   margin-bottom: 20px;
+}
+
+.answer-label {
+  margin-bottom: 12px;
 }
 
 .sentence-editor,
