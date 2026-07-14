@@ -1,12 +1,17 @@
 // ABOUTME: Vite integration for Express server
 // ABOUTME: Handles dev middleware and production static file serving
 
-import type { Application, Request, Response } from 'express';
+import type { Application, Request, Response, NextFunction } from 'express';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
 import { createServer as createViteServer } from 'vite';
 import viteConfig from '../vite.config';
+
+// ES module equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const isDev = process.env.COZE_PROJECT_ENV !== 'PROD';
 
@@ -29,47 +34,47 @@ export async function setupViteMiddleware(app: Application) {
 
 /**
  * Set up production static file server
+ * Build output is configured to go to server/public (see vite.config.ts)
  */
-export function setupStaticServer(app: Application) {
-  // Try multiple possible dist paths for FaaS compatibility
-  const possiblePaths = [
-    path.resolve(process.cwd(), 'dist'),
-    path.resolve(__dirname, '..', 'dist'),
-    path.resolve(__dirname, 'dist'),
-  ];
+export function setupStaticServer(app: Application): boolean {
+  // The build output goes to server/public (configured in vite.config.ts)
+  // Use __dirname to resolve relative to this file's location (server/)
+  const publicPath = path.resolve(__dirname, 'public');
 
-  let distPath: string | null = null;
-  for (const p of possiblePaths) {
-    if (fs.existsSync(p)) {
-      distPath = p;
-      break;
-    }
+  if (!fs.existsSync(publicPath)) {
+    console.error(`❌ Static build folder not found at ${publicPath}`);
+    console.error('   Run "pnpm vite build" to create the build output');
+    return false;
   }
 
-  if (!distPath) {
-    console.warn('⚠️ dist folder not found at any of:', possiblePaths);
-    console.warn('⚠️ Static files will not be served, but API endpoints will work');
-    return;
+  // Verify index.html exists
+  const indexPath = path.join(publicPath, 'index.html');
+  if (!fs.existsSync(indexPath)) {
+    console.error(`❌ index.html not found at ${indexPath}`);
+    return false;
   }
 
-  console.log(`📦 Serving static files from ${distPath}`);
+  console.log(`📦 Serving static files from ${publicPath}`);
 
   // Serve static files
-  app.use(express.static(distPath));
+  app.use(express.static(publicPath));
 
   // SPA fallback - return index.html for all non-API requests
   app.use((_req: Request, res: Response) => {
-    res.sendFile(path.join(distPath!, 'index.html'));
+    res.sendFile(indexPath);
   });
+
+  return true;
 }
 
 /**
  * Set up Vite based on environment
  */
-export async function setupVite(app: Application) {
+export async function setupVite(app: Application): Promise<boolean> {
   if (isDev) {
     await setupViteMiddleware(app);
+    return true;
   } else {
-    setupStaticServer(app);
+    return setupStaticServer(app);
   }
 }

@@ -44,8 +44,16 @@ server.listen(port, hostname, () => {
 
 // Set up Vite/static files AFTER listening (non-blocking)
 setupVite(app)
-  .then(() => {
-    console.log('✅ Vite/static setup complete');
+  .then((success) => {
+    if (success) {
+      console.log('✅ Vite/static setup complete');
+    } else {
+      console.error('❌ Static file setup failed - registering 503 fallback');
+      // Register a fallback handler if setup fails
+      app.use((_req, res) => {
+        res.status(503).send('Service temporarily unavailable');
+      });
+    }
   })
   .catch((err) => {
     console.error('❌ Vite/static setup failed:', err);
