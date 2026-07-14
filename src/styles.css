@@ -10,8 +10,8 @@
 }
 
 :root[data-theme='light'] {
-  --ink: #e8edf2;
-  --ice: #0b1016;
+  --ink: #FFF8E7;
+  --ice: #364152;
   color-scheme: light;
 }
 
