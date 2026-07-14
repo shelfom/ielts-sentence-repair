@@ -2,10 +2,16 @@ import { useEffect, useRef, useState } from 'react'
 import { exercises } from './exercises'
 
 type Phase = 'editing' | 'revealed' | 'complete'
+type Theme = 'dark' | 'light'
 
 const pad = (value: number) => String(value).padStart(3, '0')
+const getInitialTheme = (): Theme => {
+  if (typeof window === 'undefined') return 'dark'
+  return window.localStorage.getItem('sentence-repair-theme') === 'light' ? 'light' : 'dark'
+}
 
 function App() {
+  const [theme, setTheme] = useState<Theme>(getInitialTheme)
   const [index, setIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('editing')
   const [attempt, setAttempt] = useState(exercises[0].original)
@@ -14,6 +20,11 @@ function App() {
   const editorRef = useRef<HTMLDivElement>(null)
   const restartRef = useRef<HTMLButtonElement>(null)
   const exercise = exercises[index]
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    window.localStorage.setItem('sentence-repair-theme', theme)
+  }, [theme])
 
   useEffect(() => {
     if (phase === 'editing' || phase === 'revealed') {
@@ -142,9 +153,24 @@ function App() {
     performPrimaryAction()
   }
 
+  const themeToggle = (
+    <button
+      className="theme-toggle"
+      type="button"
+      onClick={() => setTheme((current) => current === 'dark' ? 'light' : 'dark')}
+      aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+      aria-pressed={theme === 'light'}
+    >
+      <span className={theme === 'dark' ? 'is-active' : ''}>DARK</span>
+      <span aria-hidden="true">/</span>
+      <span className={theme === 'light' ? 'is-active' : ''}>LIGHT</span>
+    </button>
+  )
+
   if (phase === 'complete') {
     return (
       <main className="app complete-screen">
+        <div className="complete-theme">{themeToggle}</div>
         <div className="frame frame-complete" aria-labelledby="completion-title">
           <p className="eyebrow">SESSION COMPLETE</p>
           <h1 id="completion-title">195 sentences completed.</h1>
@@ -171,9 +197,12 @@ function App() {
         <a className="wordmark" href="/" onClick={(event) => event.preventDefault()} aria-label="Sentence Repair home">
           SENTENCE REPAIR
         </a>
-        <div className="progress" aria-label={`Exercise ${exercise.id} of ${exercises.length}, group ${exercise.group}`}>
-          <span>GROUP {String(exercise.group).padStart(2, '0')}</span>
-          <span className="progress-count">{pad(exercise.id)} / {exercises.length}</span>
+        <div className="topbar-tools">
+          {themeToggle}
+          <div className="progress" aria-label={`Exercise ${exercise.id} of ${exercises.length}, group ${exercise.group}`}>
+            <span>GROUP {String(exercise.group).padStart(2, '0')}</span>
+            <span className="progress-count">{pad(exercise.id)} / {exercises.length}</span>
+          </div>
         </div>
       </header>
 
@@ -224,15 +253,10 @@ function App() {
         >
           <span aria-hidden="true">←</span> BACK
         </button>
-        <button
-          className="enter-hint"
-          type="button"
-          onClick={performPrimaryAction}
-          aria-label={phase === 'editing' ? 'Reveal answer' : exercise.id === exercises.length ? 'Finish session' : 'Next sentence'}
-        >
-          <span>{phase === 'editing' ? 'REVEAL ANSWER' : exercise.id === exercises.length ? 'FINISH SESSION' : 'NEXT SENTENCE'}</span>
-          <kbd><span className="desktop-key">ENTER ↵</span><span className="mobile-key">TAP</span></kbd>
-        </button>
+        <p className="screen-hint">
+          <span className="desktop-instruction">CLICK OR TAP THE PAGE TO REVEAL · AGAIN FOR NEXT</span>
+          <span className="mobile-instruction">TAP THE PAGE TO REVEAL · AGAIN FOR NEXT</span>
+        </p>
       </footer>
     </main>
   )

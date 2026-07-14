@@ -1,11 +1,18 @@
 :root {
   --ink: #0b1016;
   --ice: #e8edf2;
+  color-scheme: dark;
   font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", Arial, sans-serif;
   color: var(--ice);
   background: var(--ink);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+}
+
+:root[data-theme='light'] {
+  --ink: #e8edf2;
+  --ice: #0b1016;
+  color-scheme: light;
 }
 
 * {
@@ -73,6 +80,38 @@ button,
   color: var(--ice);
 }
 
+.topbar-tools {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+  border: 0;
+  color: color-mix(in srgb, var(--ice) 38%, transparent);
+  background: transparent;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.theme-toggle .is-active {
+  color: var(--ice);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.theme-toggle:focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 5px;
+}
+
 .practice {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -101,7 +140,7 @@ button,
 }
 
 .eyebrow,
-.enter-hint,
+.screen-hint,
 .alternative {
   margin: 0;
   color: color-mix(in srgb, var(--ice) 50%, transparent);
@@ -151,6 +190,7 @@ button,
 }
 
 .footer {
+  position: relative;
   color: color-mix(in srgb, var(--ice) 44%, transparent);
 }
 
@@ -190,48 +230,28 @@ button,
   cursor: default;
 }
 
-.enter-hint {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 0;
-  border: 0;
-  color: var(--ice);
-  background: transparent;
-  text-align: left;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.mobile-key {
-  display: none;
-}
-
-.enter-hint:hover > span:first-child,
-.enter-hint:focus-visible > span:first-child {
-  text-decoration: underline;
-  text-underline-offset: 5px;
-}
-
-.enter-hint:focus-visible {
-  outline: 1px solid var(--ice);
-  outline-offset: 6px;
-}
-
-kbd {
-  min-width: 76px;
-  padding: 8px 10px;
-  border: 1px solid color-mix(in srgb, var(--ice) 26%, transparent);
-  color: var(--ice);
-  background: transparent;
-  font-family: inherit;
-  font-size: 9px;
+.screen-hint {
+  position: absolute;
+  left: 50%;
+  width: max-content;
+  max-width: 70vw;
+  transform: translateX(-50%);
   text-align: center;
-  letter-spacing: 0.08em;
+  pointer-events: none;
+}
+
+.mobile-instruction {
+  display: none;
 }
 
 .complete-screen {
   grid-template-rows: 1fr;
+}
+
+.complete-theme {
+  position: fixed;
+  top: 32px;
+  right: clamp(28px, 5vw, 80px);
 }
 
 .frame-complete {
@@ -308,6 +328,15 @@ kbd {
     font-size: 9px;
   }
 
+  .topbar-tools {
+    gap: 14px;
+  }
+
+  .theme-toggle {
+    gap: 4px;
+    font-size: 8px;
+  }
+
   .practice {
     grid-template-columns: 1fr;
     padding: 56px 0;
@@ -329,17 +358,31 @@ kbd {
     font-size: clamp(24px, 7.5vw, 34px);
   }
 
-  .enter-hint {
-    width: 100%;
-    min-height: 44px;
-    justify-content: space-between;
+  .footer {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
   }
 
-  .desktop-key {
+  .screen-hint {
+    position: static;
+    grid-row: 1;
+    width: auto;
+    max-width: none;
+    transform: none;
+    line-height: 1.6;
+  }
+
+  .back-button {
+    grid-row: 2;
+    justify-self: start;
+  }
+
+  .desktop-instruction {
     display: none;
   }
 
-  .mobile-key {
+  .mobile-instruction {
     display: inline;
   }
 
@@ -350,6 +393,11 @@ kbd {
   .corner-mark {
     right: 20px;
     bottom: 24px;
+  }
+
+  .complete-theme {
+    top: 24px;
+    right: 20px;
   }
 }
 
