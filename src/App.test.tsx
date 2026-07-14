@@ -73,6 +73,45 @@ describe('sentence practice flow', () => {
     expect(editor.getAttribute('contenteditable')).toBe('true')
   })
 
+  it('reveals and advances when a phone user taps outside the editable sentence', () => {
+    render(<App />)
+
+    const page = screen.getByRole('main')
+    const editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    editor.textContent = 'A phone edit.'
+
+    fireEvent.pointerUp(editor, { button: 0, pointerType: 'touch' })
+    expect(screen.getByText('EDIT THE SENTENCE')).toBeTruthy()
+
+    fireEvent.pointerUp(page, { button: 0, pointerType: 'touch' })
+    expect(screen.getByText('YOUR EDIT')).toBeTruthy()
+    expect(screen.getByText('The table shows the number of people working in Britain in 1976.')).toBeTruthy()
+    expect(screen.getByText('A phone edit.')).toBeTruthy()
+
+    fireEvent.pointerUp(page, { button: 0, pointerType: 'touch' })
+    expect(screen.getByText('002 / 195')).toBeTruthy()
+  })
+
+  it('provides a tappable action button as a mobile-safe fallback', () => {
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Reveal answer' }))
+    expect(screen.getByText('The table shows the number of people working in Britain in 1976.')).toBeTruthy()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next sentence' }))
+    expect(screen.getByText('002 / 195')).toBeTruthy()
+  })
+
+  it('recognizes the line-break input event emitted by iPhone keyboards', () => {
+    render(<App />)
+
+    const editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    expect(editor.getAttribute('enterkeyhint')).toBe('done')
+    fireEvent.input(editor, { inputType: 'insertParagraph' })
+    expect(screen.getByText('YOUR EDIT')).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Next sentence' })).toBeTruthy()
+  })
+
   it('reaches the completion screen after the final answer and can restart', () => {
     render(<App />)
 

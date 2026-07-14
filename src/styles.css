@@ -42,6 +42,7 @@ button,
   padding: 32px clamp(28px, 5vw, 80px);
   color: var(--ice);
   background: var(--ink);
+  -webkit-tap-highlight-color: transparent;
 }
 
 .topbar,
@@ -165,6 +166,7 @@ button,
   font-weight: 600;
   letter-spacing: 0.12em;
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 .back-button span {
@@ -192,7 +194,28 @@ button,
   display: flex;
   align-items: center;
   gap: 16px;
+  padding: 0;
+  border: 0;
   color: var(--ice);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mobile-key {
+  display: none;
+}
+
+.enter-hint:hover > span:first-child,
+.enter-hint:focus-visible > span:first-child {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
+
+.enter-hint:focus-visible {
+  outline: 1px solid var(--ice);
+  outline-offset: 6px;
 }
 
 kbd {
@@ -308,7 +331,20 @@ kbd {
 
   .enter-hint {
     width: 100%;
+    min-height: 44px;
     justify-content: space-between;
+  }
+
+  .desktop-key {
+    display: none;
+  }
+
+  .mobile-key {
+    display: inline;
+  }
+
+  .sentence-editor {
+    touch-action: auto;
   }
 
   .corner-mark {

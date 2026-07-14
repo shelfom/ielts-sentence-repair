@@ -94,6 +94,11 @@ function App() {
     setPhase('editing')
   }
 
+  const performPrimaryAction = () => {
+    if (phase === 'editing') reveal()
+    if (phase === 'revealed') advance()
+  }
+
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.altKey && event.key === 'ArrowLeft') {
       event.preventDefault()
@@ -104,8 +109,37 @@ function App() {
     if (event.key !== 'Enter' || event.nativeEvent.isComposing) return
     event.preventDefault()
     if (event.repeat) return
-    if (phase === 'editing') reveal()
-    if (phase === 'revealed') advance()
+    performPrimaryAction()
+  }
+
+  const handleBeforeInput = (event: React.FormEvent<HTMLDivElement>) => {
+    const nativeEvent = event.nativeEvent as InputEvent
+    if (
+      phase !== 'editing'
+      || nativeEvent.isComposing
+      || (nativeEvent.inputType !== 'insertParagraph' && nativeEvent.inputType !== 'insertLineBreak')
+    ) return
+
+    event.preventDefault()
+    reveal()
+  }
+
+  const handleInput = (event: React.FormEvent<HTMLDivElement>) => {
+    const nativeEvent = event.nativeEvent as InputEvent
+    if (
+      phase === 'editing'
+      && (nativeEvent.inputType === 'insertParagraph' || nativeEvent.inputType === 'insertLineBreak')
+    ) reveal()
+  }
+
+  const handleSurfacePointerUp = (event: React.PointerEvent<HTMLElement>) => {
+    if (event.defaultPrevented || event.button !== 0) return
+
+    const target = event.target as HTMLElement
+    if (target.closest('button, a')) return
+    if (phase === 'editing' && target.closest('.sentence-editor')) return
+
+    performPrimaryAction()
   }
 
   if (phase === 'complete') {
@@ -132,7 +166,7 @@ function App() {
   }
 
   return (
-    <main className={`app phase-${phase}`}>
+    <main className={`app phase-${phase}`} onPointerUp={handleSurfacePointerUp}>
       <header className="topbar">
         <a className="wordmark" href="/" onClick={(event) => event.preventDefault()} aria-label="Sentence Repair home">
           SENTENCE REPAIR
@@ -159,7 +193,10 @@ function App() {
             aria-label="Sentence to correct"
             aria-multiline="false"
             spellCheck={false}
+            enterKeyHint="done"
             onKeyDown={handleKeyDown}
+            onBeforeInput={handleBeforeInput}
+            onInput={handleInput}
           >
             {attempt}
           </div>
@@ -187,10 +224,15 @@ function App() {
         >
           <span aria-hidden="true">←</span> BACK
         </button>
-        <p className="enter-hint">
-          {phase === 'editing' ? 'REVEAL ANSWER' : exercise.id === exercises.length ? 'FINISH SESSION' : 'NEXT SENTENCE'}
-          <kbd>ENTER ↵</kbd>
-        </p>
+        <button
+          className="enter-hint"
+          type="button"
+          onClick={performPrimaryAction}
+          aria-label={phase === 'editing' ? 'Reveal answer' : exercise.id === exercises.length ? 'Finish session' : 'Next sentence'}
+        >
+          <span>{phase === 'editing' ? 'REVEAL ANSWER' : exercise.id === exercises.length ? 'FINISH SESSION' : 'NEXT SENTENCE'}</span>
+          <kbd><span className="desktop-key">ENTER ↵</span><span className="mobile-key">TAP</span></kbd>
+        </button>
       </footer>
     </main>
   )
