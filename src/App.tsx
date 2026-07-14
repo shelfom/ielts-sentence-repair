@@ -147,7 +147,7 @@ function App() {
     if (event.defaultPrevented || event.button !== 0) return
 
     const target = event.target as HTMLElement
-    if (target.closest('button, a')) return
+    if (target.closest('button, a, [data-no-advance]')) return
     if (phase === 'editing' && target.closest('.sentence-editor')) return
 
     performPrimaryAction()
@@ -257,6 +257,10 @@ function App() {
           <span className="desktop-instruction">CLICK OR TAP THE PAGE TO REVEAL · AGAIN FOR NEXT</span>
           <span className="mobile-instruction">TAP THE PAGE TO REVEAL · AGAIN FOR NEXT</span>
         </p>
+        <address className="contact-line" data-no-advance aria-label="海归湾国际教育联系方式">
+          <span>海归湾国际教育（天津）雅思精准学习中心</span>
+          <a href="tel:4000616820">400-061-6820</a>
+        </address>
       </footer>
     </main>
   )

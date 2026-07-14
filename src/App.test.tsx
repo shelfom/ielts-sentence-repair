@@ -128,6 +128,18 @@ describe('sentence practice flow', () => {
     expect(screen.getByText('001 / 195')).toBeTruthy()
   })
 
+  it('shows discreet contact details without triggering exercise navigation', () => {
+    render(<App />)
+
+    const contact = screen.getByLabelText('海归湾国际教育联系方式')
+    expect(screen.getByText('海归湾国际教育（天津）雅思精准学习中心')).toBeTruthy()
+    expect(screen.getByRole('link', { name: '400-061-6820' }).getAttribute('href')).toBe('tel:4000616820')
+
+    fireEvent.pointerUp(contact, { button: 0, pointerType: 'touch' })
+    expect(screen.getByText('EDIT THE SENTENCE')).toBeTruthy()
+    expect(screen.getByText('001 / 195')).toBeTruthy()
+  })
+
   it('reaches the completion screen after the final answer and can restart', () => {
     render(<App />)
 
