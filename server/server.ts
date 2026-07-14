@@ -1,7 +1,7 @@
 // ABOUTME: Express server with Vite integration
 // ABOUTME: Handles API routes and serves frontend in dev/prod modes
 
-import { createServer, type Server } from 'http';
+import { createServer } from 'http';
 import express from 'express';
 import router from './routes/index';
 import { setupVite } from './vite';
@@ -9,6 +9,10 @@ import { setupVite } from './vite';
 const isDev = process.env.COZE_PROJECT_ENV !== 'PROD';
 const port = parseInt(process.env.PORT || '5000', 10);
 const hostname = '0.0.0.0';
+
+console.log(`[server] Starting in ${isDev ? 'development' : 'production'} mode`);
+console.log(`[server] Port: ${port}, Hostname: ${hostname}`);
+
 const app = express();
 const server = createServer(app);
 
