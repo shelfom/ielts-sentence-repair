@@ -157,4 +157,47 @@ describe('sentence practice flow', () => {
     fireEvent.click(screen.getByRole('button', { name: /restart/i }))
     expect(screen.getByText('001 / 195')).toBeTruthy()
   })
+
+  it('renders the learner edit before the correction in DOM order', () => {
+    render(<App />)
+
+    const editor = screen.getByRole('textbox', { name: 'Sentence to correct' })
+    fireEvent.keyDown(editor, { key: 'Enter' })
+
+    const practiceSection = document.querySelector('.practice')
+    expect(practiceSection).toBeTruthy()
+
+    const panels = practiceSection!.querySelectorAll('.sentence-panel')
+    expect(panels.length).toBe(2)
+
+    const editPanel = panels[0]
+    const correctionPanel = panels[1]
+
+    expect(editPanel.querySelector('.sentence-editor')).toBeTruthy()
+    expect(editPanel.querySelector('.eyebrow')?.textContent).toBe('YOUR EDIT')
+
+    expect(correctionPanel.querySelector('.answer')).toBeTruthy()
+    expect(correctionPanel.querySelector('.eyebrow')?.textContent).toBe('CORRECTION')
+
+    const allElements = Array.from(practiceSection!.querySelectorAll('.sentence-panel'))
+    expect(allElements.indexOf(editPanel)).toBeLessThan(allElements.indexOf(correctionPanel))
+  })
+
+  it('uses a single-column stacked layout structure for practice panels', () => {
+    render(<App />)
+
+    const practiceSection = document.querySelector('.practice')
+    expect(practiceSection).toBeTruthy()
+
+    const panels = practiceSection!.querySelectorAll('.sentence-panel')
+    expect(panels.length).toBe(2)
+
+    const editPanel = panels[0]
+    const correctionPanel = panels[1]
+
+    expect(editPanel.querySelector('.sentence-editor')).toBeTruthy()
+    expect(correctionPanel.querySelector('.answer')).toBeTruthy()
+
+    expect(practiceSection!.className).not.toContain('grid')
+  })
 })
