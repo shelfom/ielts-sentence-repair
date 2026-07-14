@@ -33,13 +33,26 @@ export async function setupViteMiddleware(app: Application) {
  * 设置生产环境静态文件服务
  */
 export function setupStaticServer(app: Application) {
-  const distPath = path.resolve(process.cwd(), 'dist');
+  // Use __dirname for more reliable path resolution in FaaS environments
+  const distPath = path.resolve(__dirname, '..', 'dist');
 
   if (!fs.existsSync(distPath)) {
-    console.error('❌ dist folder not found. Please run "pnpm build" first.');
+    // Fallback: try process.cwd()
+    const fallbackPath = path.resolve(process.cwd(), 'dist');
+    if (fs.existsSync(fallbackPath)) {
+      console.log('📦 Using fallback dist path:', fallbackPath);
+      serveFromPath(app, fallbackPath);
+      return;
+    }
+    console.error('❌ dist folder not found at:', distPath);
+    console.error('❌ Fallback path not found at:', fallbackPath);
     process.exit(1);
   }
 
+  serveFromPath(app, distPath);
+}
+
+function serveFromPath(app: Application, distPath: string) {
   // 1. 服务静态文件（如果存在对应文件则直接返回）
   app.use(express.static(distPath));
 
@@ -52,7 +65,7 @@ export function setupStaticServer(app: Application) {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 
-  console.log('📦 Serving static files from dist/');
+  console.log('📦 Serving static files from:', distPath);
 }
 
 /**
