@@ -33,6 +33,10 @@ export async function setupViteMiddleware(app: Application) {
  * 设置生产环境静态文件服务
  */
 export function setupStaticServer(app: Application) {
+  console.log('📦 Setting up static server...');
+  console.log('📦 __dirname:', __dirname);
+  console.log('📦 process.cwd():', process.cwd());
+  
   // Try multiple possible dist paths for FaaS compatibility
   const possiblePaths = [
     path.resolve(__dirname, '..', 'dist'),
@@ -43,6 +47,7 @@ export function setupStaticServer(app: Application) {
   let distPath: string | null = null;
 
   for (const p of possiblePaths) {
+    console.log('📦 Checking path:', p, 'exists:', fs.existsSync(p));
     if (fs.existsSync(p)) {
       distPath = p;
       console.log('📦 Found dist folder at:', p);
