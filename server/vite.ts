@@ -6,8 +6,6 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import { createServer as createViteServer } from 'vite';
-import viteConfig from '../vite.config';
 
 // ES module equivalent of __dirname
 const __filename = fileURLToPath(import.meta.url);
@@ -19,6 +17,10 @@ const isDev = process.env.COZE_PROJECT_ENV !== 'PROD';
  * Set up Vite dev middleware
  */
 export async function setupViteMiddleware(app: Application) {
+  // Dynamic import — vite is heavy; only load in dev mode
+  const { createServer: createViteServer } = await import('vite');
+  const { default: viteConfig } = await import('../vite.config');
+
   const vite = await createViteServer({
     ...viteConfig,
     server: {
