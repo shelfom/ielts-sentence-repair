@@ -35,15 +35,6 @@ app.use(express.urlencoded({ extended: true }));
 // 注册 API 路由
 app.use(router);
 
-// 全局错误处理
-app.use((err: Error, req: express.Request, res: express.Response) => {
-  console.error('Server error:', err);
-  const status = 'status' in err ? (err as { status?: number }).status ?? 500 : 500;
-  res.status(status).json({
-    error: err.message || 'Internal server error',
-  });
-});
-
 server.once('error', err => {
   console.error('Server error:', err);
   process.exit(1);
@@ -57,7 +48,26 @@ server.listen(port, hostname, () => {
   // 异步设置 Vite/静态文件服务（不阻塞服务器启动）
   setupVite(app).then(() => {
     console.log('✅ Vite/static server setup complete');
+    
+    // 注册错误处理器（在静态路由之后）
+    // 注意：Express 错误处理器必须有 4 个参数 (err, req, res, next)
+    app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      console.error('Server error:', err);
+      const status = 'status' in err ? (err as { status?: number }).status ?? 500 : 500;
+      res.status(status).json({
+        error: err.message || 'Internal server error',
+      });
+    });
   }).catch(err => {
     console.error('❌ Failed to setup Vite/static server:', err);
+    
+    // 如果 setupVite 失败，注册一个 fallback 处理器
+    // 注意：必须使用正确的 4 参数签名
+    app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+      console.error('Server error:', err);
+      res.status(503).json({
+        error: 'Service temporarily unavailable',
+      });
+    });
   });
 });
