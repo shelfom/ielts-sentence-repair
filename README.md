@@ -47,6 +47,7 @@ Built by **Turtle Bay International Education (海归湾国际教育)**, an IELT
 
 - Code: [MIT](LICENSE).
 - Original learning content (illustrations, recordings, explanations, example sentences, model answers): free for non-commercial teaching and learning under [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/).
+- Sentences are adapted from real candidate errors collected in 《雅思常见错误精讲精练》 (© its publisher), used here for study.
 - Unofficial practice material, not affiliated with or endorsed by Cambridge University Press & Assessment, the British Council or IDP. IELTS is their registered trademark. Rights holders can [open an issue](https://github.com/shelfom/ielts-sentence-repair/issues) and we will respond promptly.
 
 If this helped you, please ⭐ star the repo so other learners can find it.
