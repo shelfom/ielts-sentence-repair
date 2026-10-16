@@ -17,6 +17,12 @@ Fix the grammar and word mistakes that cost IELTS writers their band score.
 - Keyboard-first: practise fast without touching the mouse
 - Light and dark themes
 
+## How it works · 图解
+
+Why this drill exists and how to use it, in five cards (Chinese).
+
+<a href="docs/cards/01.jpg"><img src="docs/cards/thumb-01.jpg" width="150" alt="雅思句子改错 1/5"></a> <a href="docs/cards/02.jpg"><img src="docs/cards/thumb-02.jpg" width="150" alt="雅思句子改错 2/5"></a> <a href="docs/cards/03.jpg"><img src="docs/cards/thumb-03.jpg" width="150" alt="雅思句子改错 3/5"></a> <a href="docs/cards/04.jpg"><img src="docs/cards/thumb-04.jpg" width="150" alt="雅思句子改错 4/5"></a> <a href="docs/cards/05.jpg"><img src="docs/cards/thumb-05.jpg" width="150" alt="雅思句子改错 5/5"></a>
+
 ## Run it locally
 
 ```bash
